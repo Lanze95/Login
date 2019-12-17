@@ -1,7 +1,6 @@
 if (process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
-   // require('dotenv')()
-}
+   }
 
 const express = require('express')
 const app = express()
@@ -18,16 +17,16 @@ initializePassport(
     id => users.find(user => user.id === id)
 )
 
-const users = []
+const users = [] // Derzeit speichern im Array, nicht persistent
 
-//
+//DB Code
 const mongoose = require('mongoose')
 mongoose.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true})
 const db = mongoose.connection
 db.on('error', error => console.error(error))
 db.once('open', () => console.log('Connected to Mongoose'))
-//
+// DB Code Ende
 
 app.set('view-engine', 'ejs')
 app.use(express.urlencoded({extended: false}))
