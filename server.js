@@ -10,6 +10,10 @@ const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
 
+const bodyParser = require('body-parser')
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended:true}))
+
 const initializePassport = require('./passport-config')
 initializePassport(
     passport, 
@@ -21,11 +25,22 @@ const users = [] // Derzeit speichern im Array, nicht persistent
 
 //DB Code
 const mongoose = require('mongoose')
-mongoose.connect(process.env.DATABASE_URL, {
-    useNewUrlParser: true})
+mongoose.Promise = global.Promise
+const url = 'mongodb://127.0.0.1:27017/users'
+mongoose.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true})
 const db = mongoose.connection
 db.on('error', error => console.error(error))
-db.once('open', () => console.log('Connected to Mongoose'))
+db.once('open', () => console.log('Connected to Mongoose', url))
+
+const nameSchema = new mongoose.Schema({
+    user: String,
+    email: String,
+    password: String,
+})
+const User = mongoose.model("User", nameSchema)
+
 // DB Code Ende
 
 app.set('view-engine', 'ejs')
@@ -93,3 +108,13 @@ function checkNotAuthenticated(req, res, next){
 }
 
 app.listen(3001)
+
+// Überlegun für Post in Register:
+/*const myData = new User (req.body.name)
+        myData.save()
+        .then(item => {
+            res.send("Erfolgreich registriert", 10)
+        })
+        .catch(err => {
+            res.status(400).send("Speichern fehlgeschlagen", 10)
+        })*/
