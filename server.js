@@ -12,7 +12,7 @@ const methodOverride = require('method-override')
 
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended:true}))
+app.use(bodyParser.urlencoded({ extended:false}))
 
 const initializePassport = require('./passport-config')
 initializePassport(
@@ -34,12 +34,13 @@ const db = mongoose.connection
 db.on('error', error => console.error(error))
 db.once('open', () => console.log('Connected to Mongoose', url))
 
-const nameSchema = new mongoose.Schema({
-    user: String,
-    email: String,
-    password: String,
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    }
 })
-const User = mongoose.model("User", nameSchema)
+const User = mongoose.model('User', userSchema)
 
 // DB Code Ende
 
@@ -70,7 +71,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 }))
 
 app.get('/register', checkNotAuthenticated, (req, res) => {
-    res.render('register.ejs')
+    res.render('register.ejs', { User: new User()})
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
